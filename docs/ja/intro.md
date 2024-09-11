@@ -5,7 +5,7 @@
 QiqはComposerから [qiq/qiq](https://packagist.org/packages/qiq/qiq) としてインストールします。
 
 ```
-composer require qiq/qiq ^1.0
+composer require qiq/qiq ^2.0
 ```
 
 ## はじめに
@@ -13,9 +13,9 @@ composer require qiq/qiq ^1.0
 まず、テンプレートファイルは`/path/to/templates/hello.php`に保存されているとします。
 
 ```html+php
-Hello, {{h $this->name }}. That was Qiq!
+Hello, {{h $name }}. That was Qiq!
 
-And this is PHP, <?= $this->h($this->name) ?>.
+And this is PHP, <?= $this->h($name) ?>.
 ```
 
 次は`hello` テンプレートを使って出力を生成するためのプレゼンテーションコードです。
@@ -28,7 +28,7 @@ $template->setView('hello');
 $template->setData([
     'name' => 'World'
 ]);
-echo $template->render();
+echo $template();
 ```
 
 これだけです。

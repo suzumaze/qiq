@@ -1,53 +1,69 @@
 # フォームヘルパー
 
-すべてのヘルパーは自動的に適切なエスケープを適用します。これはつまり、`{{= ... }}`を使って出力することができます。もし、`{{h ... }}`などを使うと、二重にエスケープして出力してしまいます。
+すべてのヘルパーは適切なエスケープを自動的に適用します。つまり、`{{= ... }}` を使用して出力できます。`{{h ... }}` などを使用すると、出力が二重にエスケープされてしまいます。
 
-PHPのテンプレートコードで、ヘルパーを`$this`のメソッドとして指定することもできます。
+また、PHPテンプレートコードでは、`$this` のメソッドとしてヘルパーを呼び出すこともできます。
 
-## フォームタグ
+最後に、これらのヘルパーの多くは、HTML タグの属性として名前付きパラメータの可変長リストを受け取ります。つまり、ヘルパーメソッドのパラメータであるかのように、ほぼすべての属性を追加できます。パラメータ名のアンダースコアはダッシュに変換されます。例えば、foo_bar: 'baz' は、ヘルパーの出力で foo-bar="baz" になります。名前付きパラメータとして使用できない属性については、`attr` 配列パラメータを使用してください。
 
-このようにフォームを開きます。
+## Form Tag
+
+フォームを開くには次のようにします:
 
 ```qiq
-{{= form ([                         // (array) attributes
-    'method' => 'post',
-    'action' => '/hello',
-]) }}
+{{= form (
+    action: '/hello',
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'form-id'           // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
-<form method="post" action="/hello" enctype="multipart/form-data">
+<!-- デフォルトは method="post" action="" enctype="multipart/form-data" -->
+<form method="post" action="/hello" enctype="multipart/form-data" id="form-id">
 ```
+フォームを閉じるには単に `</form>` を使用します。
 
-フォームを閉じるには、`</form>`を使用します。
-
-## 入力タグ
+## Input Tags
 
 ### checkboxField
 
-`checkboxField`は汎用の入力フィールドヘルパーとして使用できますが、チェック済みかどうかをマークするために、自分で`checked`属性を設定する必要があります。
+```qiq
+{{= checkboxField (
+    name: 'flag',
+    value: 'foo',
+    checked: true,
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
+```
 
-代わりに、擬似属性`_options`を指定すると、より高機能なものが利用できるようになります。
+```html
+<input type="checkbox" name="flag" value="foo" checked />
+```
 
-- `_options`は、フィールドの一部として1つ以上のチェックボックスを指定し、チェックされたときの値と、それに対応するラベルを指定します。
+### checkboxFields
 
-- `_options`が複数の要素を持つ場合、フィールド名には自動的に`[]`が付加され、配列となります。
+`checkboxFields` ヘルパーは、一度に1つ以上のチェックボックスに使用でき、`checkboxField` ヘルパーよりも機能が豊富です：
 
-- `value`属性は`_options`と照合され、正しいチェックボックスが`checked`されるようになります。
-
-- `default`疑似属性が存在する場合、チェックボックスがチェックされていないとき、値のための隠された入力フィールドを生成します。
+- `options` 配列は、フィールドの一部として1つ以上のチェックボックスを指定し、チェック時の各値と対応するラベルを定義します。
+- `options` に複数の要素がある場合、フィールド名の末尾に自動的に `[]`が追加され、配列になります。
+- `value` 属性は `options` と照合され、正しいチェックボックスが自動的に `checked` になります。
+- `default` パラメータがnull以外の場合、チェックボックスがチェックされていない時にその値の隠しフィールドが生成されます。
 
 ```qiq
-{{= checkboxField ([                // (array) attributes
-    'name' => 'flags',
-    'value' => 'bar',
-    '_default' => '',
-    '_options' => [
+{{= checkboxFields (
+    name: 'flags',
+    value: 'bar',
+    default: '',
+    options: [
         'foo' => 'Foo Flag',
         'bar' => 'Bar Flag',
         'baz' => 'Baz Flag',
-    ]
-]) }}
+    ],
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -60,10 +76,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### colorField
 
 ```qiq
-{{= colorField ([                   // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= colorField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -73,10 +91,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### dateField
 
 ```qiq
-{{= dateField ([                    // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= dateField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -86,10 +106,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### datetimeField
 
 ```qiq
-{{= datetimeField ([                // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= datetimeField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -99,10 +121,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### datetimeLocalField
 
 ```qiq
-{{= datetimeLocalField ([           // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= datetimeLocalField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -112,10 +136,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### emailField
 
 ```qiq
-{{= emailField ([                   // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= emailField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -125,10 +151,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### fileField
 
 ```qiq
-{{= fileField ([                    // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= fileField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -138,10 +166,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### hiddenField
 
 ```qiq
-{{= hiddenField ([                  // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= hiddenField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -150,15 +180,16 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ### inputField
 
-一般的な入力フィールド。必要な`type`を指定する。
+必要な `type` を指定する。
 
 ```qiq
-{{= inputField ([                  // (array) attributes
-    'type' => 'text',
-    'name' => 'foo',
-    'value' => 'bar',
-    // ...
-]) }}
+{{= inputField (
+    type: 'text',
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -168,10 +199,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### monthField
 
 ```qiq
-{{= monthField ([                   // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= monthField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -181,11 +214,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### numberField
 
 ```qiq
-{{= numberField ([                  // (array) attributes
-    'type' => 'number',
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= numberField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -195,10 +229,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### passwordField
 
 ```qiq
-{{= passwordField ([                // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= passwordField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -207,24 +243,40 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ### radioField
 
-`radioField`を汎用の入力フィールドヘルパーとして使用することができますが、チェック済みかどうかをマークするために、自分で`checked`属性を設定する必要があります。
+```qiq
+{{= radioField (
+    name: 'foo',
+    value: 'baz',
+    checked: true,
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
+```
 
-また、擬似属性 `_options`を指定することで、より高機能なものが利用できます。
+```html
+<input type="radio" name="foo" value="baz" checked />
+```
 
-- `_options`は、フィールドの一部として1つまたは複数のラジオボタンを指定し、チェックしたときの値と、それに対応するラベルを指定します。
+### radioFields
 
-- `value`属性が`_options`とマッチングされ、適切なチェックボックスが`checked`されるようになります。
+
+`radioFields` ヘルパーは `radioField` ヘルパーよりも機能が豊富です：
+
+- `options` パラメータは、フィールドの一部として1つ以上のラジオボタンを指定し、チェック時の値と対応するラベルを定義します。
+- `value` パラメータは `options` と照合され、正しいラジオボタンが自動的に `checked` になります。
 
 ```qiq
-{{= radioField ([                   // (array) attributes
-    'name' => 'foo',
-    'value' => 'baz',
-    '_options' => [
+{{= radioFields (
+    name: 'foo',
+    value: 'baz',
+    options: [
         'bar' => 'Bar Label',
         'baz' => 'Baz Label,
         'dib' => 'Dib Label',
     ),
-]) }}
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -236,10 +288,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### rangeField
 
 ```qiq
-{{= rangeField ([                   // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= rangeField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -249,10 +303,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### searchField
 
 ```qiq
-{{= searchField ([                  // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= searchField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -261,26 +317,25 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ### select
 
-`<option>`タグの記述には、擬似属性`_options`を使用します。
-
-属性`placeholder`は、オプションが選択されていない場合、プレースホルダー・ラベルとして尊重されます。擬似属性`_default`は、プレースホルダーの値を指定します。
-
-属性`'multiple' => true`を使用すると、複数選択が設定され、名前に`[]`がない場合は自動的に追加されます。
-
+`options` パラメータを使用して `<option>` タグを記述します。
+`placeholder` パラメータは、オプションが選択されていない場合のプレースホルダーラベルとして扱われます。`default` パラメータがnull以外の場合、そのプレースホルダーの値を指定します。
+複数選択を設定するには `multiple: true` を使用します。これにより、名前にまだ `[]` が付いていない場合は自動的に追加されます。
 
 ```qiq
-{{= select ([                       // (array) attributes
-    'name' => 'foo',
-    'value' => 'dib',
-    'placeholder' => 'Please pick one',
-    '_default' => '',
-    '_options' => [
+{{= select (
+    name: 'foo',
+    value: 'dib',
+    placeholder: 'Please pick one',
+    default: '',
+    options: [
         'bar' => 'Bar Label',
         'baz' => 'Baz Label',
         'dib' => 'Dib Label',
         'zim' => 'Zim Label',
     ],
-]) }}
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -293,13 +348,13 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 </select>
 ```
 
-このヘルパーはオプショングループもサポートしています。もし`_options`配列の値そのものが配列なら、その要素のキーが `<optgroup>`ラベルとして使われ、値の配列は、そのグループのオプションとなります。
+このヘルパーはオプショングループもサポートしています。`options` 配列の値自体が配列の場合、その要素のキーが `<optgroup>` のラベルとして使用され、値の配列がそのグループ内のオプションになります。
 
 ```qiq
-{{= select ([
-    'name' => 'foo',
-    'value' => 'bar',
-    '_options' => [
+{{= select (
+    name: 'foo',
+    value: 'bar',
+    options: => [
         'Group A' => [
             'bar' => 'Bar Label',
             'baz' => 'Baz Label',
@@ -309,7 +364,7 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
             'zim' => 'Zim Label',
         ],
     ],
-]) }}
+) }}
 ```
 
 ```html
@@ -328,10 +383,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### telField
 
 ```qiq
-{{= telField([                      // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= telField(
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -341,10 +398,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### textField
 
 ```qiq
-{{= textField ([                    // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= textField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -354,10 +413,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### textarea
 
 ```qiq
-{{= textarea ([                     // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= textarea (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -367,10 +428,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### timeField
 
 ```qiq
-{{= timeField ([                    // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= timeField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -380,10 +443,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### urlField
 
 ```qiq
-{{= urlField ([                      // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= urlField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -393,10 +458,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### weekField
 
 ```qiq
-{{= weekField ([                    // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= weekField (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -410,10 +477,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### button
 
 ```qiq
-{{= button ([                       // (array) atttributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= button (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -423,10 +492,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### imageButton
 
 ```qiq
-{{= imageButton ([                  // (array) atttributes
-    'name' => 'foo',
-    'src' => '/images/map.png',
-]) }}
+{{= imageButton (
+    name: 'foo',
+    src: '/images/map.png',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -436,10 +507,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### submitButton
 
 ```qiq
-{{= submitButton ([                 // (array) atttributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= submitButton (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -449,10 +522,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 ### resetButton
 
 ```qiq
-{{= resetButton ([                  // (array) attributes
-    'name' => 'foo',
-    'value' => 'bar',
-]) }}
+{{= resetButton (
+    name: 'foo',
+    value: 'bar',
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
 ```
 
 ```html
@@ -461,14 +536,13 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ## Label Tag
 
-`<label>`タグ用のヘルパーです。
+`<label>` タグのためのヘルパー。
 
 ```qiq
 {{= label (
-    'Label For Field',              // (string) label text
-    [                               // (array) optional attributes
-        'for' => 'field'
-    ]
+    'Label For Field',      // (string) label text
+    attr: [],               // (array) オプションのキー・バリュー属性:
+    for: 'field'            // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 

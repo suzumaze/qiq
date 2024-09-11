@@ -1,5 +1,5 @@
 {
-    "title": "1.x Doc",
+    "title": "3.x",
     "content": [
         "intro.md",
         "syntax.md",
@@ -7,7 +7,11 @@
         "catalog.md",
         "partials.md",
         "layouts.md",
+        "blocks.md",
+        "inheritance.md",
         "helpers/_bookdown.json",
-        "compiler.md"
+        "compiler.md",
+        "static-analysis.md",
+        "upgrading.md"
     ]
 }

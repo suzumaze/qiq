@@ -1,6 +1,6 @@
-# テンプレートロケーター
+# テンプレートファイルカタログ
 
-Qiqは、名前付きテンプレートを任意の数のディレクトリパスから検索します。`Template::new()`に`paths`配列を渡します。
+Qiqは複数のディレクトリパスからテンプレートファイルを検索します。`Template::new()` に `paths` の配列を渡すことができます...
 
 ```php
 $template = Template::new(
@@ -11,7 +11,7 @@ $template = Template::new(
 );
 ```
 
-あるいは、Catalogに直接指示することもできます。
+または、_Catalog_ に直接指示することもできます：
 
 ```php
 $template->getCatalog()->setPaths([
@@ -20,17 +20,17 @@ $template->getCatalog()->setPaths([
 ]);
 ```
 
-Catalogは、最初のディレクトリパスから最後のディレクトリパスまで、指定されたテンプレートを検索します。
+_Catalog_ は最初のディレクトリパスから最後のディレクトリパスまでテンプレートファイルを検索します。
 
 ```php
 /*
-searches first for:  /path/to/custom/templates/foo.php,
-and then second for: /path/to/default/templates/foo.php
+まず最初に:  /path/to/custom/templates/foo.php を検索し、
+次に: /path/to/default/templates/foo.php を検索します
 */
 $output = $template('foo');
 ```
 
-もし必要なら、Templateのインスタンス化の後でパスを変更し、Catalogにディレクトリパスを追加または前置することができます。
+必要に応じて、_Template_ のインスタンス化後にパスを変更して、_Catalog_ にディレクトリパスを前置または後置することができます：
 
 ```php
 $template->getCatalog()->prependPath('/higher/precedence/templates');
@@ -39,16 +39,16 @@ $template->getCatalog()->appendPath('/lower/precedence/templates');
 
 ### サブディレクトリ
 
-任意の場所からテンプレートをレンダリングするには、テンプレート名への絶対パスを使用します。
+任意の場所からテンプレートファイルをレンダリングするには、テンプレート名への絶対パスを使用します（先頭のスラッシュは不要です）：
 
 ```php
-// renders the "foo/bar/baz.php" template
+// "foo/bar/baz.php" テンプレートをレンダリングします
 $output = $template('foo/bar/baz');
 ```
-このほか、テテンプレート内でテンプレート名を相対パスで参照することもできます。
-同じディレクトリにあるテンプレートを示すには `./` を、現在のディレクトリの上のディレクトリを示すには`../`を使用します。
 
-以下のようなテンプレートファイル構造がある場合 ...
+あるいは、テンプレートファイル内から、相対パスで他のテンプレートファイルを参照することもできます。`./` は同じディレクトリにあるテンプレートファイルを、`../` は現在のディレクトリの上のディレクトリにあるファイルを示します。
+
+次のようなテンプレートファイル構造があるとします...
 
 ```
 foo.php
@@ -59,45 +59,43 @@ foo/
         dib.php
 ```
 
-... `foo/bar/baz.php`テンプレートファイルから他のファイルを参照するには以下のようになります。
+... `foo/bar/baz.php` テンプレートファイル内では：
 
 ```php
-// refers to "foo/bar/dib.php"
+// "foo/bar/dib.php" を参照します
 echo $this->render('./dib');
 
-// refers to "foo/bar.php"
+// "foo/bar.php" を参照します
 echo $this->render('../bar');
 
-// refers to "foo.php"
+// "foo.php" を参照します
 echo $this->render('../../foo');
 ```
 
-
 ### ファイル名の拡張子
 
-デフォルトでは、Catalogはテンプレートファイル名に`.php`を自動で付加します。もしテンプレートファイルの拡張子が違う場合は、`setExtension()`メソッドで変更します。
+デフォルトでは、_Catalog_ はテンプレートファイル名に `.php` を自動的に追加します。テンプレートファイルが異なる拡張子で終わる場合は、`setExtension()` メソッドを使用して変更します：
 
 ```php
 $catalog = $template->getCatalog();
 $catalog->setExtension('.phtml');
 ```
 
-あるいは、Template作成時に設定することもできます。
+または、_Template_ 作成時に拡張子を設定することもできます：
 
 ```php
 $template = Template::new(
-    extension: '.phtml'
+    extension: '.qiq.php'
 );
 ```
 
 ### コレクション
 
-メール用や管理者ページ用など、テンプレートのコレクションを識別するのが便利な場合があります。(他のシステムでは、これらを"グループ"、"フォルダ"、"名前空間"と呼ぶことがあります)。
-
-ディレクトリパスとコレクションを関連付けるには、パスの前にコレクション名とコロンを付けます。
+メールや管理ページなど、テンプレートのコレクションを識別することが有用な場合があります（他のテンプレートシステムではこれらを "グループ"、"フォルダ"、または "名前空間" と呼ぶことがあります）。
+ディレクトリパスをコレクションに関連付けるには、パスの前にコレクション名とコロンを付けます：
 
 ```php
-$template = new Template(
+$template = Template::new(
     paths: [
         'admin:/path/to/admin/templates',
         'email:/path/to/email/templates',
@@ -111,4 +109,4 @@ $template = new Template(
 $output = $template('email:notify/subscribed');
 ```
 
-コレクションパスの設定、追加、およびプリペンドは、接頭辞なしのテンプレートパスの"main"、または"default"コレクションと同じように行うことができます。
+"main" または "default" のプレフィックスなしテンプレートパスのコレクションと同様に、コレクションパスを設定、追加、前置することができます。

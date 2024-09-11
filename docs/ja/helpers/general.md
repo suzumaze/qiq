@@ -1,20 +1,40 @@
 # 一般的なヘルパー
 
-すべてのヘルパーは自動的に適切なエスケープを適用します。これはつまり、`{{= ... }}`を使って出力することができます。もし、`{{h ... }}`などを使うと、二重にエスケープして出力してしまいます。
+全てのヘルパーは適切なエスケープを自動的に適用します。これは、`{{= ... }}` を使って出力できることを意味します。`{{h ... }}` などを使うと、出力が二重にエスケープされてしまいます。
 
-PHPのテンプレートコードで、ヘルパーを`$this`のメソッドとして指定することもできます。
+PHPテンプレートコードでは、`$this` のメソッドとしてヘルパーを呼び出すこともできます。
 
-## anchor
+最後に、これらのヘルパーの多くは、HTMLタグの属性として名前付きパラメータの可変長リストを受け取ります。これは、ヘルパーメソッドのパラメータであるかのように、ほぼすべての属性を追加できることを意味します。パラメータ名のアンダースコアはダッシュに変換されます。例えば、`foo_bar: 'baz'` は、ヘルパーの出力で `foo-bar="baz"` になります。名前付きパラメータとして使用できない属性については、`attr` 配列パラメータを使用してください。
 
-`<a>`タグ用のヘルパーです。
+例：
 
 ```qiq
 {{= anchor (
-    'http://qiqphp.com',            // (string) href
-    'Qiq Project',                  // (string) text
-    [                               // (array) optional attributes
-        'id' => 'qiq-link'
-    ]
+    'http://qiqphp.com',
+    'Qiq Project',
+    attr: [                 // (array) オプションのキー・バリュー属性
+        'xml:lang' => 'en',
+    ],
+    id: 'qiq-link',         // (...mixed) オプションの名前付きパラメータ属性
+) }}
+```
+
+このサンプルコードは以下のHTMLを生成します：
+
+```html
+<a href="http://qiqphp.com" xml:lang="en" id="qiq-link">Qiq for PHP</a>
+```
+
+## anchor
+
+`<a>` タグのためのヘルパー。
+
+```qiq
+{{= anchor (
+    'http://qiqphp.com',    // (string) href
+    'Qiq Project',          // (string) text
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'qiq-link',         // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 
@@ -22,33 +42,13 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 <a href="http://qiqphp.com" id="qiq-link">Qiq for PHP</a>
 ```
 
-アンカーテキストをエスケープせずに出力するには、擬似属性`_raw`を使用します。
-
-```qiq
-{{= anchor (
-    'http://qiqphp.com',            // (string) href
-    '<em>qiq Project</em>',         // (string) text
-    [                               // (array) optional attributes
-
-        'id' => 'qiq-link'
-        '_raw' => true
-    ]
-) }}
-```
-
-```html
-<a href="http://qiqphp.com" id="qiq-link"><em>Qiq for PHP</em></a>
-```
-
-(hrefと属性はちゃんとエスケープされます)
-
 ## base
 
-`<base>`タグのヘルパーです。
+`<base>` タグのためのヘルパー。
 
 ```qiq
 {{= base (
-    '/base'                         // (string) href
+    '/base'                 // (string) href
 ) }}
 ```
 
@@ -58,11 +58,11 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ## dl
 
-`<dl>`タグに`<dt>`/`<dd>`アイテムを指定するためのヘルパーです。
+`<dt>`/`<dd>` アイテムを持つ `<dl>` タグのためのヘルパー。
 
 ```qiq
 {{= dl (
-    [                               // (array) dt keys and dd values
+    [                       // (array) dtキーとdd値
         'foo' => 'Foo Def',
         'bar' => [
             'Bar Def A',
@@ -71,9 +71,8 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
         ],
         'baz' => 'Baz Def',
     ],
-    [                               // (array) optional attributes
-        'id' => 'test'
-    ],
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'test'              // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 
@@ -92,28 +91,27 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ## image
 
-`<img>`タグのヘルパーです。
+`<img>` タグのためのヘルパー。
 
 ```qiq
 {{= image (
-    '/images/hello.jpg',            // (string) image href src
-    [                               // (array) optional attributes
-        'id' => 'image-id'
-    ]
+    '/images/hello.jpg',    // (string) 画像の href src
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'image-id'          // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 
 ```html
-<!-- if alt is not specified, uses the basename of the image href -->
+<!-- altが指定されていない場合、画像hrefのベースネームを使用 -->
 <img src="/images/hello.jpg" alt="hello" id="image-id" />
 ```
 
 ## items
 
-一連の`<li>`タグのためのヘルパーです。
+一連の `<li>` タグのためのヘルパー。
 
 ```qiq
-{{= items ([                        // (array) list items
+{{= items ([                // (array) list items
     'foo',
     'bar',
     'baz'
@@ -128,58 +126,70 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ## link
 
-`<link>`タグのヘルパーです。
+`<link>` タグのためのヘルパー。
 
 ```qiq
-{{= link ([                         // (array) attributes
-    'rel' => 'prev',
-    'href' => '/path/to/prev',
-]) }}
-```
-
-```html
-<link rel="prev" href="/path/to/prev" />
-```
-
-## linkStylesheet
-
-`<link>`スタイルシートタグのためのヘルパー。
-
-```qiq
-{{= linkStylesheet (
-    '/css/print.css',               // (string) the stylesheet href
-    [                               // (array) optional attributes
-        'media' => 'print',
-    ]
+{{= link (
+    rel: 'prev',
+    href: '/path/to/prev',
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'link-id'           // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 
 ```html
+<link rel="prev" href="/path/to/prev" id="link-id" />
+```
+
+## linkStylesheet
+
+`<link>` スタイルシートタグのためのヘルパー。
+
+```qiq
+{{= linkStylesheet (
+    '/css/print.css',       // (string) スタイルシートのhref
+    attr: [],               // (array) オプションのキー・バリュー属性
+    media: 'print'          // (...mixed) オプションの名前付きパラメータ属性
+) }}
+```
+
+```html
+<!-- typeが指定されていない場合、"text/css"を使用 -->
+<!-- mediaが指定されていない場合、"screen"を使用 -->
 <link rel="stylesheet" href="/css/print.css" type="text/css" media="print" />
 ```
 
 ## meta
 
-`<meta>`タグのヘルパーです。
+`<meta>` タグのためのヘルパー。
+
+一般的な使用法：
 
 ```qiq
-{{= meta ([                         // (array) attributes
-    'charset' => 'utf-8'
-]) }}
+{{= meta (
+    attr: [],               // (array) オプションのキー・バリュー属性
+    ...                     // (...mixed) オプションの名前付きパラメータ属性
+) }}
+```
+
+`charset`の場合：
+
+```qiq
+{{= meta (
+    charset: 'utf-8'
+) }}
 ```
 
 ```html
 <meta charset="utf-8">
 ```
 
-## metaHttp
-
-`<meta http-equiv>`タグ用のヘルパーです。
+`http-equiv` の場合：
 
 ```qiq
-{{= metaHttp (
-    'Location',                     // (string) http-equiv attribute
-    '/redirect/to/here'             // (string) content attribute
+{{= meta (
+    http_equiv: 'Location',
+    content: '/redirect/to/here'
 ) }}
 ```
 
@@ -187,14 +197,12 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 <meta http-equiv="Location" content="/redirect/to/here">
 ```
 
-## metaName
-
-`<meta name>`タグのヘルパーです。
+`name` の場合：
 
 ```qiq
-{{= metaHttp (
-    'author',                       // (string) name attribute
-    'Qiq for PHP'                   // (string) content attribute
+{{= meta (
+    name: 'author',
+    content: 'Qiq for PHP'
 ) }}
 ```
 
@@ -204,18 +212,17 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ## ol
 
-`<li>`を持つ`<ol>`タグのためのヘルパーです。
+`<li>` アイテムを持つ `<ol>` タグのためのヘルパー。
 
 ```qiq
 {{= ol (
-    [                               // (array) list items
+    [                       // (array) list items
         'foo',
         'bar',
         'baz'
     ],
-    [                               // (array) optional attributes
-        'id' => 'foo-list'
-    ]
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'foo-list'          // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 
@@ -229,35 +236,34 @@ PHPのテンプレートコードで、ヘルパーを`$this`のメソッドと�
 
 ## script
 
-`<script>`タグのヘルパーです。
+`<script>` タグのためのヘルパー。
 
 ```qiq
 {{= script (
-    '/js/functions.js',             // (string) src attribute
-    [                               // (array) other attributes
-        'async' => true
-    ]
+    '/js/functions.js',     // (string) src属性
+    attr: [],               // (array) オプションのキー・バリュー属性
+    async: true             // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 
 ```html
+<!-- typeが指定されていない場合、"text/javascript"を使用 -->
 <script src="/js/functions.js" type="text/javascript" async></script>
 ```
 
 ## ul
 
-`<li>`を持つ`<ul>`タグのためのヘルパーです。
+`<li>` アイテムを持つ `<ul>` タグのためのヘルパー。
 
 ```qiq
 {{= ul (
-    [                               // (array) list items
+    [                       // (array) リストアイテム
         'foo',
         'bar',
         'baz'
     ],
-    [                               // (array) optional attributes
-        'id' => 'foo-list'
-    ]
+    attr: [],               // (array) オプションのキー・バリュー属性
+    id: 'foo-list'          // (...mixed) オプションの名前付きパラメータ属性
 ) }}
 ```
 

@@ -5,7 +5,7 @@
 QiqはComposerから [qiq/qiq](https://packagist.org/packages/qiq/qiq) としてインストールします。
 
 ```
-composer require qiq/qiq ^2.0
+composer require qiq/qiq ^3.0
 ```
 
 ## はじめに
